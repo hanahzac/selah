@@ -1,7 +1,15 @@
 {
   "projects": {
-    "staging": "selah-90ac5"
+    "staging": "selah-90ac5",
+    "release": "selah-90ac5"
   },
-  "targets": {},
+  "targets": {
+    "selah-90ac5": {
+      "hosting": {
+        "staging": ["selah-90ac5"],
+        "release": ["web-selah"]
+      }
+    }
+  },
   "etags": {}
 }

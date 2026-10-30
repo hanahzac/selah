@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "deploy:staging": "npm run build && npx -y firebase-tools@latest deploy --only hosting:staging --project staging",
+    "deploy:release": "npm run build && npx -y firebase-tools@latest deploy --only hosting:release --project release",
     "preview": "vite preview",
     "lint": "tsc -b --pretty false"
   },
