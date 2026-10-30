@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function staff() {
+      return signedIn() && exists(/databases/$(database)/documents/staff/$(request.auth.uid));
+    }
+    function publisher() {
+      return staff() && get(/databases/$(database)/documents/staff/$(request.auth.uid)).data.role in ['publisher', 'admin'];
+    }
+
+    match /songs/{songId} {
+      allow read: if resource.data.status == 'published' || staff();
+      allow create, update: if staff();
+      allow delete: if publisher();
+    }
+
+    match /staff/{userId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow write: if false; // Roles are assigned manually in the Firebase Console for Spark-plan MVP.
+    }
+
+    match /savedPairs/{pairId} {
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if signedIn() && resource.data.ownerId == request.auth.uid;
+    }
+
+    match /recommendationEvents/{eventId} {
+      allow create: if signedIn() && request.resource.data.ownerId == request.auth.uid;
+      allow read, update, delete: if false;
+    }
+
+    match /reviewTasks/{taskId} {
+      allow read, create, update: if staff();
+      allow delete: if publisher();
+    }
+  }
+}
